@@ -34,11 +34,17 @@ npm test
 
 ## Details
   
-There's only one component that matters, in src/components/Treemap.vue, and you can extract it and use it in your own projects. The source data is a JSON file in static/flare.json. If you prefer, you can use this build as a base for your project, which uses the [vuejs-webpack template](https://github.com/vuejs-templates/webpack), containing a webpack + vue-loader setup with hot reload, linting, testing & css extraction.
+There's only one component that matters, in src/components/Treemap.vue, and you can extract it and use it in your own projects. The source data is a JSON file in static/flare.json. If you prefer, you can use this build as a base for your project, which uses the [vuejs-webpack template](https://github.com/vuejs-templates/webpack), containing a webpack + vue-loader setup with hot reload, linting, testing & css extraction, and a router ([vue router](https://router.vuejs.org/en/)).
 
-This implementation of a D3 visualization in Vuejs basically eliminates 3d-select and the need for an explicit rerender of the svg composition.
+This implementation of a D3 visualization in Vuejs basically eliminates 3d-select and the need for an explicit rerender of the svg composition. It binds attributes to svg elements, and the svg structure, explicitly defined in the template, reflects the computed data, at any moment, taking advantage of the reactive nature of vuejs. Thus, by setting events (on click events in this project) on the svg elements, a new data tree can be refactored and the changes immediatly reflected in the visualization.
 
 For a detailed explanation on how things work with [vue-cli](https://github.com/vuejs/vue-cli), check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+
+## ToDo
+
+Cleanup a bit the code. There are still some inline styles in the svg.  
+Migrate some D3 function calls to Vuejs (the scales - scaleLinear and scaleOrdinal - probably).
+
 
 ## License
 

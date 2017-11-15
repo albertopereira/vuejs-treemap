@@ -1,10 +1,19 @@
 <template>
   <div class="treemap">
+    <!-- The SVG structure is explicitly defined in the template with attributes derived from component data -->
     <svg :height="height" style="margin-left: 0px;" :width="width">
       <g style="shape-rendering: crispEdges;" transform="translate(0,20)">
+        <!-- We can use Vue transitions too! -->
         <transition-group name="list" tag="g" class="depth">
-          <g class="children" v-for="(children, index) in selectedNode._children" :key="'c_' + children.id" v-if="selectedNode">
+          <!-- Generate each of the visible squares at a given zoom level (the current selected node) -->
+          <g 
+            class="children" 
+            v-for="(children, index) in selectedNode._children" 
+            :key="'c_' + children.id" 
+            v-if="selectedNode"
+            >
 
+            <!-- Generate the children squares (only visible on hover of a square) -->
             <rect 
               v-for="child in children._children" 
               class="child" 
@@ -15,13 +24,16 @@
               :x="x(child.x0)" 
               :y="y(child.y0)"
               >
-              
-              <title>{{ child.name }} | {{ child.value }}</title>
             </rect>
 
+            <!-- 
+              The visible square rect element.
+              You can attribute directly an event, that fires a method that changes the current node,
+              restructuring the data tree, that reactivly gets reflected in the template.
+            -->
             <rect 
               class="parent" 
-              v-on:click.prevent="selectNode" 
+              v-on:click="selectNode" 
               :id="children.id" 
               :key="children.id" 
               :x="x(children.x0)" 
@@ -31,9 +43,11 @@
               :style="{ fill: color(index) }"
               >
               
+              <!-- The title attribute -->
               <title>{{ children.data.name }} | {{ children.value }}</title>
             </rect>
 
+            <!-- The visible square text element with the title and value of the child node -->
             <text 
               dy="1em" 
               :key="'t_' + children.id" 
@@ -58,6 +72,7 @@
           </g>
         </transition-group>
 
+        <!-- The top most element, representing the previous node -->
         <g class="grandparent">
           
           <rect 
@@ -68,6 +83,7 @@
             :id="parentId">
           </rect>
 
+          <!-- The visible square text element with the id (basically a breadcumb, if you will) -->
           <text 
             dy=".65em" 
             x="6" 
@@ -86,6 +102,7 @@ import * as d3 from 'd3'
 
 export default {
   name: 'Treemap',
+  // the component's data
   data () {
     return {
       jsonData: null,
@@ -98,23 +115,27 @@ export default {
       },
       width: 960,
       height: 530,
-      formatNumber: d3.format(',d'),
       selected: null,
       color: {}
     }
   },
+  // You can do whatever when the selected node changes
   watch: {
     selectedNode (newData, oldData) {
-      console.log(oldData)
+      console.log('The selected node changed...')
     }
   },
+  // In the beginning...
   mounted () {
     var that = this
+
+    // An array with colors (can probably be replaced by a vuejs method)
     that.color = d3.scaleOrdinal(d3.schemeCategory20)
 
+    // loads the data and calls the initialization methods
     d3.json('../static/flare.json',
       function (error, data) {
-        if (error) throw error
+        if (error) console.log(error)
         that.jsonData = data
         that.initialize()
         that.accumulate(that.rootNode, that)
@@ -122,7 +143,9 @@ export default {
       }
     )
   },
+  // The reactive computed variables that fire rerenders
   computed: {
+    // The grandparent id
     parentId () {
       if (this.selectedNode.parent === undefined || this.selectedNode.parent === null) {
         return this.selectedNode.id
@@ -130,25 +153,28 @@ export default {
         return this.selectedNode.parent.id
       }
     },
+    // Returns the x position within the current domain
+    // Maybe it can be replaced by a vuejs method
     x () {
       return d3.scaleLinear()
         .domain([0, this.width])
         .range([0, this.width])
     },
+    // Returns the y position within the current domain
+    // Maybe it can be replaced by a vuejs method
     y () {
       return d3.scaleLinear()
         .domain([0, this.height - this.margin.top - this.margin.bottom])
         .range([0, this.height - this.margin.top - this.margin.bottom])
     },
-    computedHeight () {
-      return 500 - this.margin.top - this.margin.bottom
-    },
+    // The D3 function that recursively subdivides an area into rectangles
     treemap () {
       return d3.treemap()
       .size([this.width, this.height])
       .round(false)
-      .paddingInner(1)
+      .paddingInner(0)
     },
+    // The current selected node
     selectedNode () {
       let node = null
 
@@ -164,6 +190,7 @@ export default {
         node = this.rootNode
       }
 
+      // Recalculates the y and x domains
       this.x.domain([node.x0, node.x0 + (node.x1 - node.x0)])
       this.y.domain([node.y0, node.y0 + (node.y1 - node.y0)])
 
@@ -171,6 +198,7 @@ export default {
     }
   },
   methods: {
+    // Called once, to create the hierarchical data representation
     initialize () {
       let that = this
 
@@ -187,6 +215,8 @@ export default {
         that.rootNode.depth = 0
       }
     },
+    // Calculates the accumulated value (sum of children values) of a node - its weight,
+    // represented afterwards in the area of its square 
     accumulate (d, context) {
       d._children = d.children
 
@@ -197,6 +227,7 @@ export default {
         return d.value
       }
     },
+    // Helper method - gets a node by its id attribute
     getNodeById (node, id, context) {
       if (node.id === id) {
         return node
@@ -209,6 +240,9 @@ export default {
         }
       }
     },
+    // When a user clicks a square, changes the selected data attribute
+    // which fires the computed selectedNode, which in turn finds the Node by the id of the square clicked
+    // and the template reflects the changes
     selectNode (event) {
       this.selected = event.target.id
     }
