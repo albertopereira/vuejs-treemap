@@ -2,6 +2,10 @@
 
 > An implementation, updated to d3v4, in Vuejs, of the [D3 Zoomable Treemap](https://bost.ocks.org/mike/treemap/).
 
+## Demo
+
+Yes. [Here](http://treemap-demo.albertopereira.com).
+
 ## Dependencies
 
 [Node.js](https://nodejs.org/en/) (>=4.x, 6.x preferred) and npm version 3+.  
