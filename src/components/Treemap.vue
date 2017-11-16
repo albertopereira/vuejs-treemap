@@ -98,7 +98,20 @@
 </template>
 
 <script>
-import * as d3 from 'd3'
+import {scaleLinear, scaleOrdinal, schemeCategory20} from 'd3-scale'
+import {json} from 'd3-request'
+import {hierarchy, treemap} from 'd3-hierarchy'
+
+// To be explicit about which methods are from D3 let's wrap them around an object
+// Is there a better way to do this?
+let d3 = {
+  scaleLinear: scaleLinear,
+  scaleOrdinal: scaleOrdinal,
+  schemeCategory20: schemeCategory20,
+  json: json,
+  hierarchy: hierarchy,
+  treemap: treemap
+}
 
 export default {
   name: 'Treemap',
@@ -216,7 +229,7 @@ export default {
       }
     },
     // Calculates the accumulated value (sum of children values) of a node - its weight,
-    // represented afterwards in the area of its square 
+    // represented afterwards in the area of its square
     accumulate (d, context) {
       d._children = d.children
 
