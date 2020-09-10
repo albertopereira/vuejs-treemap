@@ -6,63 +6,63 @@
         <!-- We can use Vue transitions too! -->
         <transition-group name="list" tag="g" class="depth">
           <!-- Generate each of the visible squares at a given zoom level (the current selected node) -->
-          <g 
-            class="children" 
-            v-for="(children, index) in selectedNode._children" 
-            :key="'c_' + children.id" 
+          <g
+            class="children"
+            v-for="(children, index) in selectedNode._children"
+            :key="'c_' + children.id"
             v-if="selectedNode"
             >
 
             <!-- Generate the children squares (only visible on hover of a square) -->
-            <rect 
-              v-for="child in children._children" 
-              class="child" 
-              :id="child.id" 
-              :key="child.id" 
-              :height="y(child.y1) - y(child.y0)" 
-              :width="x(child.x1) - x(child.x0)" 
-              :x="x(child.x0)" 
+            <rect
+              v-for="child in children._children"
+              class="child"
+              :id="child.id"
+              :key="child.id"
+              :height="y(child.y1) - y(child.y0)"
+              :width="x(child.x1) - x(child.x0)"
+              :x="x(child.x0)"
               :y="y(child.y0)"
               >
             </rect>
 
-            <!-- 
+            <!--
               The visible square rect element.
               You can attribute directly an event, that fires a method that changes the current node,
               restructuring the data tree, that reactivly gets reflected in the template.
             -->
-            <rect 
-              class="parent" 
-              v-on:click="selectNode" 
-              :id="children.id" 
-              :key="children.id" 
-              :x="x(children.x0)" 
-              :y="y(children.y0)" 
-              :width="x(children.x1 - children.x0 + children.parent.x0)" 
-              :height="y(children.y1 - children.y0 + children.parent.y0)" 
+            <rect
+              class="parent"
+              v-on:click="selectNode"
+              :id="children.id"
+              :key="children.id"
+              :x="x(children.x0)"
+              :y="y(children.y0)"
+              :width="x(children.x1 - children.x0 + children.parent.x0)"
+              :height="y(children.y1 - children.y0 + children.parent.y0)"
               :style="{ fill: color(index) }"
               >
-              
+
               <!-- The title attribute -->
               <title>{{ children.data.name }} | {{ children.value }}</title>
             </rect>
 
             <!-- The visible square text element with the title and value of the child node -->
-            <text 
-              dy="1em" 
-              :key="'t_' + children.id" 
-              :x="x(children.x0) + 6" 
-              :y="y(children.y0) + 6" 
+            <text
+              dy="1em"
+              :key="'t_' + children.id"
+              :x="x(children.x0) + 6"
+              :y="y(children.y0) + 6"
               style="fill-opacity: 1;"
               >
               {{ children.data.name }}
             </text>
-            
-            <text 
-              dy="2.25em" 
-              :key="'t_' + children.id" 
-              :x="x(children.x0) + 6" 
-              :y="y(children.y0) + 6" 
+
+            <text
+              dy="2.25em"
+              :key="'t_' + children.id"
+              :x="x(children.x0) + 6"
+              :y="y(children.y0) + 6"
               style="fill-opacity: 1;"
               >
 
@@ -74,21 +74,21 @@
 
         <!-- The top most element, representing the previous node -->
         <g class="grandparent">
-          
-          <rect 
-            :height="margin.top" 
-            :width="width" 
-            :y="(margin.top * -1)" 
-            v-on:click="selectNode" 
+
+          <rect
+            :height="margin.top"
+            :width="width"
+            :y="(margin.top * -1)"
+            v-on:click="selectNode"
             :id="parentId">
           </rect>
 
           <!-- The visible square text element with the id (basically a breadcumb, if you will) -->
-          <text 
-            dy=".65em" 
-            x="6" 
+          <text
+            dy=".65em"
+            x="6"
             y="-14">
-            
+
             {{ selectedNode.id }}
           </text>
         </g>
@@ -98,7 +98,7 @@
 </template>
 
 <script>
-import {scaleLinear, scaleOrdinal, schemeCategory20} from 'd3-scale'
+import {scaleLinear, scaleOrdinal} from 'd3-scale'
 import {json} from 'd3-request'
 import {hierarchy, treemap} from 'd3-hierarchy'
 
@@ -107,7 +107,6 @@ import {hierarchy, treemap} from 'd3-hierarchy'
 let d3 = {
   scaleLinear: scaleLinear,
   scaleOrdinal: scaleOrdinal,
-  schemeCategory20: schemeCategory20,
   json: json,
   hierarchy: hierarchy,
   treemap: treemap
@@ -142,8 +141,12 @@ export default {
   mounted () {
     var that = this
 
-    // An array with colors (can probably be replaced by a vuejs method)
-    that.color = d3.scaleOrdinal(d3.schemeCategory20)
+    // An array with colors
+    that.color = d3.scaleOrdinal([
+      `#023fa5`, `#7d87b9`, `#bec1d4`, `#d6bcc0`, `#bb7784`, `#8e063b`, `#4a6fe3`, `#8595e1`,
+      `#b5bbe3`, `#e6afb9`, `#e07b91`, `#d33f6a`, `#11c638`, `#8dd593`, `#c6dec7`, `#ead3c6`,
+      `#f0b98d`, `#ef9708`, `#0fcfc0`, `#9cded6`, `#d5eae7`, `#f3e1eb`, `#f6c4e1`, `#f79cd4`
+    ])
 
     // loads the data and calls the initialization methods
     d3.json('../static/flare.json',
@@ -183,9 +186,9 @@ export default {
     // The D3 function that recursively subdivides an area into rectangles
     treemap () {
       return d3.treemap()
-      .size([this.width, this.height])
-      .round(false)
-      .paddingInner(0)
+        .size([this.width, this.height])
+        .round(false)
+        .paddingInner(0)
     },
     // The current selected node
     selectedNode () {
@@ -217,11 +220,11 @@ export default {
 
       if (that.jsonData) {
         that.rootNode = d3.hierarchy(that.jsonData)
-        .eachBefore(function (d) { d.id = (d.parent ? d.parent.id + '.' : '') + d.data.name })
-        .sum((d) => d.value)
-        .sort(function (a, b) {
-          return b.height - a.height || b.value - a.value
-        })
+          .eachBefore(function (d) { d.id = (d.parent ? d.parent.id + '.' : '') + d.data.name })
+          .sum((d) => d.value)
+          .sort(function (a, b) {
+            return b.height - a.height || b.value - a.value
+          })
         that.rootNode.x = that.rootNode.y = 0
         that.rootNode.x1 = that.width
         that.rootNode.y1 = that.height
@@ -319,5 +322,5 @@ rect.parent,
 .list-enter, .list-leave-to /* .list-leave-active for <2.1.8 */ {
   opacity: 0;
 }
-    
+
 </style>
